@@ -9,9 +9,21 @@ collections use the ``__`` delimiter, e.g. ``MUSTER_AGENT_LABELS__zone=homelab``
 from __future__ import annotations
 
 import socket
+from enum import Enum
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class RunnerBackend(str, Enum):
+    """Which headless coding agent a Muster agent drives jobs through.
+
+    Selected per box via ``MUSTER_AGENT_BACKEND``; both are equivalent from the
+    control plane's point of view — only the local runner differs.
+    """
+
+    CLAUDE = "claude"
+    OPENCODE = "opencode"
 
 
 def default_agent_name() -> str:
@@ -71,8 +83,14 @@ class AgentSettings(BaseSettings):
     labels: dict[str, str] = {}
     """Free-form key/value tags advertised in the capability manifest."""
 
+    backend: RunnerBackend = RunnerBackend.CLAUDE
+    """Which headless coding agent to run jobs through (``claude`` or ``opencode``)."""
+
     claude_bin: str = "claude"
-    """Path or name of the Claude Code binary used by the runner."""
+    """Path or name of the Claude Code binary, used when ``backend`` is claude."""
+
+    opencode_bin: str = "opencode"
+    """Path or name of the OpenCode binary, used when ``backend`` is opencode."""
 
     workspace_root: str = "."
     """Working directory jobs execute in."""

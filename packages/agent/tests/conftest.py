@@ -115,7 +115,7 @@ class FakeStream:
 
 
 class FakeProcess:
-    """A fake asyncio subprocess for driving :class:`ClaudeCodeRunner`."""
+    """A fake asyncio subprocess for driving :class:`AgentRunner`."""
 
     def __init__(
         self,
