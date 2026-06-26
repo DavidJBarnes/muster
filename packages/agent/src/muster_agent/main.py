@@ -15,7 +15,7 @@ from muster_agent.agent import Agent
 from muster_agent.capabilities import probe_capabilities
 from muster_agent.config import AgentSettings
 from muster_agent.log import get_logger, setup_logging
-from muster_agent.runner import ClaudeCodeRunner
+from muster_agent.runner import build_runner
 from muster_agent.transport import connect_websocket
 
 
@@ -26,7 +26,7 @@ def main() -> None:  # pragma: no cover
     logger = get_logger(__name__)
 
     capabilities = probe_capabilities(settings)
-    runner = ClaudeCodeRunner(settings.claude_bin, settings.workspace_root)
+    runner = build_runner(settings)
     agent = Agent(settings, capabilities, connect_websocket, runner)
 
     async def run() -> None:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from muster_agent.config import AgentSettings, default_agent_name
+from muster_agent.config import AgentSettings, RunnerBackend, default_agent_name
 
 
 def test_default_agent_name_uses_hostname(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -25,7 +25,9 @@ def test_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.reachable_hosts == []
     assert settings.accounts == []
     assert settings.labels == {}
+    assert settings.backend is RunnerBackend.CLAUDE
     assert settings.claude_bin == "claude"
+    assert settings.opencode_bin == "opencode"
     assert settings.workspace_root == "."
     assert settings.log_level == "INFO"
 
@@ -36,8 +38,12 @@ def test_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MUSTER_AGENT_AGENT_NAME", "nova")
     monkeypatch.setenv("MUSTER_AGENT_HEARTBEAT_INTERVAL_S", "2.5")
     monkeypatch.setenv("MUSTER_AGENT_LABELS__zone", "homelab")
+    monkeypatch.setenv("MUSTER_AGENT_BACKEND", "opencode")
+    monkeypatch.setenv("MUSTER_AGENT_OPENCODE_BIN", "/usr/local/bin/opencode")
     settings = AgentSettings()
     assert settings.control_plane_url == "ws://hub/agent"
     assert settings.agent_name == "nova"
     assert settings.heartbeat_interval_s == 2.5
     assert settings.labels == {"zone": "homelab"}
+    assert settings.backend is RunnerBackend.OPENCODE
+    assert settings.opencode_bin == "/usr/local/bin/opencode"

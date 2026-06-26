@@ -1,13 +1,16 @@
 # Muster
 
-A fleet of named, headless [Claude Code](https://docs.anthropic.com/en/docs/claude-code) agents coordinated by a central control plane.
+A fleet of named, headless coding-agent workers coordinated by a central control plane.
 
 Each **agent** is a long-lived async process running on one of your boxes (homelab
 nodes over ZeroTier, RunPod, etc.). It names itself, probes its capabilities,
 opens a single WebSocket to the **control plane**, registers, heartbeats its
-liveness, and runs free-text jobs through Claude Code headless — streaming results
-back over the same socket. The control plane tracks the fleet and dispatches jobs;
-chat **connectors** (Slack, Teams) will feed jobs in and route results back.
+liveness, and runs free-text jobs through a headless coding agent —
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code) or
+[OpenCode](https://github.com/sst/opencode), selectable per box — streaming
+results back over the same socket. The control plane tracks the fleet and
+dispatches jobs; chat **connectors** (Slack, Teams) will feed jobs in and route
+results back.
 
 ## Repository layout
 
@@ -19,7 +22,7 @@ muster/
 ├─ packages/
 │  ├─ contracts/      muster-contracts    — the wire protocol (pure Pydantic models)
 │  ├─ controlplane/   muster-controlplane — FastAPI hub: registry, heartbeat, dispatch
-│  └─ agent/          muster-agent        — Claude Code headless wrapper
+│  └─ agent/          muster-agent        — headless coding-agent wrapper (Claude / OpenCode)
 └─ tests/integration/                     — real agent ↔ live control plane round-trip
 ```
 
@@ -39,7 +42,8 @@ in for the chat connectors until those exist.
 ### `muster-agent`
 Names itself, probes host capabilities (GPUs via `nvidia-smi`, tools on `PATH`,
 declared hosts/accounts/labels), connects to the control plane, registers, and
-heartbeats. Incoming jobs run through Claude Code headless, streaming partial then
+heartbeats. Incoming jobs run through a headless coding agent — Claude Code or
+OpenCode, selected per box via `MUSTER_AGENT_BACKEND` — streaming partial then
 final results. Reconnects with exponential backoff and re-registers on drop. Every
 external boundary (socket, subprocess, GPU probe, sleep) is injected, so the whole
 loop is testable with **no network, no `claude` binary, and no GPU**.
