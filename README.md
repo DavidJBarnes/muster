@@ -91,8 +91,9 @@ uv run --directory packages/controlplane mypy --strict src/muster_controlplane
 # Control plane (defaults to 0.0.0.0:8000)
 uv run --directory packages/controlplane muster-controlplane
 
-# Agent — point it at a control plane
+# Agent — point it at a control plane (backend defaults to claude)
 MUSTER_AGENT_CONTROL_PLANE_URL=ws://localhost:8000/agent \
+MUSTER_AGENT_BACKEND=claude \
   uv run --directory packages/agent muster-agent
 ```
 
